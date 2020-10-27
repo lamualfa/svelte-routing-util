@@ -19,7 +19,7 @@ module.exports = function init({
   publicUrl,
   templateKeys,
   cacheHtml,
-}) {
+} = {}) {
   templatePath = resolve(templatePath || join(__dirname, 'template.html'));
   ssrAppPath = relative(
     __dirname,

@@ -1,5 +1,5 @@
 const svelte = require('rollup-plugin-svelte');
-const nodeResolve = require('@rollup/plugin-node-resolve');
+const { default: nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const livereload = require('rollup-plugin-livereload');
 const css = require('rollup-plugin-css-only');
@@ -46,7 +46,9 @@ module.exports = function resolveConfig({
     nodeResolve({
       preferBuiltins: true,
     }),
-    commonjs(),
+    commonjs({
+      requireReturnsDefault: 'auto',
+    }),
     isDev &&
       livereload({
         watch: join(csrBuildDir, csrBuildFileName),
@@ -67,7 +69,9 @@ module.exports = function resolveConfig({
     nodeResolve({
       preferBuiltins: true,
     }),
-    commonjs(),
+    commonjs({
+      requireReturnsDefault: 'auto',
+    }),
     !isDev && terser(),
   ];
 
@@ -87,6 +91,7 @@ module.exports = function resolveConfig({
           format: 'iife',
           name: 'app',
           file: join(csrBuildDir, csrBuildFileName),
+          exports: 'named',
         },
         plugins: browserPlugins,
       },
@@ -101,6 +106,7 @@ module.exports = function resolveConfig({
           format: 'cjs',
           name: 'app',
           file: join(ssrBuildDir, ssrBuildFileName),
+          exports: 'named',
         },
         plugins: serverPlugins,
       },
