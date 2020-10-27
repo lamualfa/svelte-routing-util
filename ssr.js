@@ -40,7 +40,8 @@ module.exports = function init({
     throw new Error(`Cannot find JS file with path "${ssrAppPath}".`);
 
   const template = readFileSync(templatePath, 'utf-8');
-  const script = require(ssrAppPath);
+  let script = require(ssrAppPath);
+  script = script.default || script;
   const serveStatic = static(resolve(csrBuildDir));
   const styleTags = css.useCss
     ? `<link rel="stylesheet" href="${publicUrl}${css.buildFileName}" />`
