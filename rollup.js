@@ -23,6 +23,7 @@ const {
 const isDev = Boolean(process.env.ROLLUP_WATCH);
 
 module.exports = function resolveConfig({
+  sveltePluginConfig = {},
   resolvePlugins,
   resolveBrowserPlugins,
   resolveServerPlugins,
@@ -40,6 +41,7 @@ module.exports = function resolveConfig({
       css: (css) => {
         css.write(join(csrBuildDir, cssOptions.buildFileName));
       },
+      ...sveltePluginConfig,
     }),
     nodeResolve({
       preferBuiltins: true,
@@ -60,6 +62,7 @@ module.exports = function resolveConfig({
       }),
     svelte({
       generate: 'ssr',
+      ...sveltePluginConfig,
     }),
     nodeResolve({
       preferBuiltins: true,
