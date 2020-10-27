@@ -22,12 +22,13 @@ const {
 
 const isDev = Boolean(process.env.ROLLUP_WATCH);
 
-module.exports = ({
+module.exports = function resolveConfig({
+  resolvePlugins,
   resolveBrowserPlugins,
   resolveServerPlugins,
   browserOptions,
   serverOptions,
-} = {}) => {
+} = {}) {
   let browserPlugins = [
     cssOptions &&
       cssOptions.useCss &&
@@ -68,9 +69,10 @@ module.exports = ({
   ];
 
   if (resolveBrowserPlugins)
-    browserPlugins = resolveBrowserPlugins(browserPlugins);
+    browserPlugins = resolveBrowserPlugins(resolvePlugins(browserPlugins));
 
-  if (resolveServerPlugins) serverPlugins = resolveServerPlugins(serverPlugins);
+  if (resolveServerPlugins)
+    serverPlugins = resolveServerPlugins(resolvePlugins(serverPlugins));
 
   return [
     // Browser bundle
