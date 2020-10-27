@@ -6,8 +6,8 @@ module.exports = {
   srcDir: 'src',
   scriptFileName: 'main.js',
   svelteFileName: 'App.svelte',
+  useCss: false,
   css: {
-    useCss: false,
     buildFileName: 'bundle.css',
   },
 };

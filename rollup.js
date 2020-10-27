@@ -17,6 +17,7 @@ const {
   srcDir,
   scriptFileName,
   svelteFileName,
+  useCss,
   css: cssOptions,
 } = resolveConfig();
 
@@ -31,8 +32,7 @@ module.exports = function resolveConfig({
   serverOptions,
 } = {}) {
   let browserPlugins = [
-    cssOptions &&
-      cssOptions.useCss &&
+    useCss &&
       css({
         output: join(csrBuildDir, cssOptions.buildFileName),
       }),
@@ -57,8 +57,7 @@ module.exports = function resolveConfig({
     !isDev && terser(),
   ];
   let serverPlugins = [
-    cssOptions &&
-      cssOptions.useCss &&
+    useCss &&
       css({
         output: join(csrBuildDir, cssOptions.buildFileName),
       }),
