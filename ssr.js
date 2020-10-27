@@ -8,13 +8,17 @@ const {
   ssrBuildFileName,
   csrBuildDir,
   ssrBuildDir,
+  css,
 } = resolveConfig();
+
+const cachesHtml = {};
 
 module.exports = function init({
   templatePath,
   ssrAppPath,
   publicUrl,
   templateKeys,
+  cacheHtml = true,
 }) {
   templatePath = resolve(templatePath || __dirname, 'template.html');
   ssrAppPath = relative(
@@ -23,9 +27,10 @@ module.exports = function init({
   );
   if (!templateKeys)
     templateKeys = {
+      styles: /{{styles}}/g,
       publicUrl: /{{publicUrl}}/g,
       content: /{{content}}/g,
-      csrBuildFileName: /{{csrBuildFileName}}/g,
+      scripts: /{{scripts}}/g,
     };
 
   if (!pathExistsSync(templatePath))
@@ -36,14 +41,26 @@ module.exports = function init({
   const template = readFileSync(templatePath, 'utf-8');
   const script = require(ssrAppPath);
   const serveStatic = static(resolve(csrBuildDir));
+  const styleTags = css.useCss
+    ? `<link rel="stylesheet" href="${publicUrl}${css.buildFileName}" />`
+    : '';
+  const scriptTags = `<script src="${publicUrl}${csrBuildFileName}"></script>`;
 
   return {
     serveBuildDir: (req, res, next) => serveStatic(req, res, next),
     renderToString: function ({ url }) {
-      return template
-        .replace(templateKeys.publicUrl, publicUrl)
-        .replace(templateKeys.csrBuildFileName, csrBuildFileName)
-        .replace(templateKeys.content, script.render({ url }).html);
+      let html = cachesHtml[url];
+      if (!cacheHtml || !html) {
+        html = template
+          .replace(templateKeys.publicUrl, publicUrl)
+          .replace(templateKeys.styles, styleTags)
+          .replace(templateKeys.scripts, scriptTags)
+          .replace(templateKeys.content, script.render({ url }).html);
+
+        if (cacheHtml) cachesHtml[url] = html;
+      }
+
+      return html;
     },
   };
 };
