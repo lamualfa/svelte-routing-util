@@ -14,19 +14,25 @@ const {
 const cachesHtml = {};
 
 module.exports = function init({
-  templatePath = resolve(__dirname, 'template.html'),
-  ssrAppPath = join(ssrBuildDir, ssrBuildFileName),
-  publicUrl = '/',
-  templateKeys = {
+  templatePath,
+  ssrAppPath,
+  publicUrl,
+  templateKeys,
+  cacheHtml,
+}) {
+  templatePath = resolve(templatePath || join(__dirname, 'template.html'));
+  ssrAppPath = relative(
+    __dirname,
+    ssrAppPath || join(ssrBuildDir, ssrBuildFileName)
+  );
+  publicUrl = publicUrl || '/';
+  templateKeys = templateKeys || {
     styles: /{{styles}}/g,
     publicUrl: /{{publicUrl}}/g,
     content: /{{content}}/g,
     scripts: /{{scripts}}/g,
-  },
-  cacheHtml = true,
-}) {
-  templatePath = resolve(templatePath);
-  ssrAppPath = relative(__dirname, ssrAppPath);
+  };
+  cacheHtml = cacheHtml === undefined ? true : cacheHtml;
 
   if (!pathExistsSync(templatePath))
     throw new Error(`Cannot find HTML file with path "${templatePath}".`);

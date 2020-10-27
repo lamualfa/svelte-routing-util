@@ -1,8 +1,8 @@
 module.exports = {
-  csrBuildFileName: 'bundle.js',
-  ssrBuildFileName: 'app.js',
   csrBuildDir: 'build/dist',
   ssrBuildDir: 'build/ssr',
+  csrBuildFileName: 'bundle.js',
+  ssrBuildFileName: 'app.js',
   srcDir: 'src',
   scriptFileName: 'main.js',
   svelteFileName: 'App.svelte',
