@@ -11,7 +11,14 @@ const {
   css,
 } = resolveConfig();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const cachesHtml = {};
+
+function getScript(path) {
+  const script = require(path);
+  return script.default || script;
+}
 
 module.exports = function init({
   templatePath,
@@ -39,9 +46,8 @@ module.exports = function init({
   else if (!pathExistsSync(resolve(__dirname, ssrAppPath)))
     throw new Error(`Cannot find JS file with path "${ssrAppPath}".`);
 
-  const template = readFileSync(templatePath, 'utf-8');
-  let script = require(ssrAppPath);
-  script = script.default || script;
+  let template = readFileSync(templatePath, 'utf-8');
+  let script = getScript(ssrAppPath);
   const serveStatic = static(resolve(csrBuildDir));
   const styleTags = `<link rel="stylesheet" href="${publicUrl}${css.buildFileName}" />`;
   const scriptTags = `<script src="${publicUrl}${csrBuildFileName}"></script>`;
@@ -49,6 +55,12 @@ module.exports = function init({
   return {
     serveBuildDir: (req, res, next) => serveStatic(req, res, next),
     renderToString: function ({ url }) {
+      // Reload static assets
+      if (!isProduction) {
+        template = readFileSync(templatePath, 'utf-8');
+        script = getScript(ssrAppPath);
+      }
+
       let html = cachesHtml[url];
       if (!cacheHtml || !html) {
         html = template
