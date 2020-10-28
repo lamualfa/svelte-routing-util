@@ -11,8 +11,6 @@ const {
   css,
 } = resolveConfig();
 
-const isProduction = process.env.NODE_ENV === 'production';
-
 const cachesHtml = {};
 
 function getScript(path) {
@@ -21,6 +19,7 @@ function getScript(path) {
 }
 
 module.exports = function init({
+  dev,
   templatePath,
   ssrAppPath,
   publicUrl,
@@ -56,7 +55,7 @@ module.exports = function init({
     serveBuildDir: (req, res, next) => serveStatic(req, res, next),
     renderToString: function ({ url }) {
       // Reload static assets
-      if (!isProduction) {
+      if (dev === undefined || dev) {
         template = readFileSync(templatePath, 'utf-8');
         script = getScript(ssrAppPath);
       }
