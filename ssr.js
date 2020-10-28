@@ -43,9 +43,7 @@ module.exports = function init({
   let script = require(ssrAppPath);
   script = script.default || script;
   const serveStatic = static(resolve(csrBuildDir));
-  const styleTags = css.useCss
-    ? `<link rel="stylesheet" href="${publicUrl}${css.buildFileName}" />`
-    : '';
+  const styleTags = `<link rel="stylesheet" href="${publicUrl}${css.buildFileName}" />`;
   const scriptTags = `<script src="${publicUrl}${csrBuildFileName}"></script>`;
 
   return {
