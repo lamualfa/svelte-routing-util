@@ -68,11 +68,13 @@ module.exports = function resolveConfig({
     !isDev && terser(),
   ];
 
+  if (resolvePlugins) {
+    browserPlugins = resolvePlugins(browserPlugins);
+    serverPlugins = resolvePlugins(serverPlugins);
+  }
   if (resolveBrowserPlugins)
-    browserPlugins = resolveBrowserPlugins(resolvePlugins(browserPlugins));
-
-  if (resolveServerPlugins)
-    serverPlugins = resolveServerPlugins(resolvePlugins(serverPlugins));
+    browserPlugins = resolveBrowserPlugins(browserPlugins);
+  if (resolveServerPlugins) serverPlugins = resolveServerPlugins(serverPlugins);
 
   return [
     // Browser bundle
