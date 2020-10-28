@@ -2,7 +2,6 @@ const svelte = require('rollup-plugin-svelte');
 const { default: nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const livereload = require('rollup-plugin-livereload');
-const css = require('rollup-plugin-css-only');
 const deepmerge = require('deepmerge');
 const { terser } = require('rollup-plugin-terser');
 const { join } = require('path');
@@ -17,14 +16,15 @@ const {
   srcDir,
   scriptFileName,
   svelteFileName,
-  useCss,
   css: cssOptions,
 } = resolveConfig();
 
 const isDev = Boolean(process.env.ROLLUP_WATCH);
 
 module.exports = function resolveConfig({
-  sveltePluginConfig = {},
+  sveltePluginOptions = {},
+  browserSveltePluginOptions = {},
+  serverSveltePluginOptions = {},
   resolvePlugins,
   resolveBrowserPlugins,
   resolveServerPlugins,
@@ -32,16 +32,13 @@ module.exports = function resolveConfig({
   serverOptions,
 } = {}) {
   let browserPlugins = [
-    useCss &&
-      css({
-        output: join(csrBuildDir, cssOptions.buildFileName),
-      }),
     svelte({
       hydratable: true,
       css: (css) => {
         css.write(join(csrBuildDir, cssOptions.buildFileName));
       },
-      ...sveltePluginConfig,
+      ...sveltePluginOptions,
+      ...browserSveltePluginOptions,
     }),
     nodeResolve({
       preferBuiltins: true,
@@ -57,13 +54,10 @@ module.exports = function resolveConfig({
     !isDev && terser(),
   ];
   let serverPlugins = [
-    useCss &&
-      css({
-        output: join(csrBuildDir, cssOptions.buildFileName),
-      }),
     svelte({
       generate: 'ssr',
-      ...sveltePluginConfig,
+      ...sveltePluginOptions,
+      ...serverSveltePluginOptions,
     }),
     nodeResolve({
       preferBuiltins: true,
