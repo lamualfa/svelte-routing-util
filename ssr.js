@@ -60,15 +60,11 @@ module.exports = function init({
     renderToString: function ({ url }) {
       // Reload static assets
       if (dev === undefined || dev || !template || !script) {
-        if (!existsSync(csrBuildDir) || !existsSync(ssrBuildDir)) {
+        if (!existsSync(ssrAppPath)) {
           if (timeoutExceeded) {
             return res
               .status(500)
-              .send(
-                `Cannot find build directory in "${
-                  existsSync(csrBuildDir) ? ssrBuildDir : csrBuildDir
-                }".`
-              );
+              .send(`Can't find SSR Script in "${ssrAppPath}".`);
           }
 
           setTimeout(() => {
