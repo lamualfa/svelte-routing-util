@@ -1,6 +1,6 @@
 const static = require('serve-static');
 const { resolve, join, relative } = require('path');
-const { pathExistsSync, readFileSync } = require('fs-extra');
+const { pathExistsSync, readFileSync, existsSync } = require('fs-extra');
 const { resolve: resolveConfig } = require('./lib/config');
 
 const {
@@ -25,6 +25,7 @@ module.exports = function init({
   publicUrl,
   templateKeys,
   cacheHtml,
+  buildTimeout,
 } = {}) {
   templatePath = resolve(templatePath || join(__dirname, 'template.html'));
   ssrAppPath = relative(
@@ -39,14 +40,17 @@ module.exports = function init({
     scripts: /{{scripts}}/g,
   };
   cacheHtml = cacheHtml === undefined ? true : cacheHtml;
+  // The default of buildTimeout is 5 Minutes
+  buildTimeout = buildTimeout === undefined ? 300000 : buildTimeout;
 
   if (!pathExistsSync(templatePath))
     throw new Error(`Cannot find HTML file with path "${templatePath}".`);
   else if (!pathExistsSync(resolve(__dirname, ssrAppPath)))
     throw new Error(`Cannot find JS file with path "${ssrAppPath}".`);
 
-  let template = readFileSync(templatePath, 'utf-8');
-  let script = getScript(ssrAppPath);
+  let timeoutExceeded;
+  let template;
+  let script;
   const serveStatic = static(resolve(csrBuildDir));
   const styleTags = `<link rel="stylesheet" href="${publicUrl}${css.buildFileName}" />`;
   const scriptTags = `<script src="${publicUrl}${csrBuildFileName}"></script>`;
@@ -55,7 +59,24 @@ module.exports = function init({
     serveBuildDir: (req, res, next) => serveStatic(req, res, next),
     renderToString: function ({ url }) {
       // Reload static assets
-      if (dev === undefined || dev) {
+      if (dev === undefined || dev || !template || !script) {
+        if (!existsSync(csrBuildDir) || !existsSync(ssrBuildDir)) {
+          if (timeoutExceeded) {
+            return res
+              .status(500)
+              .send(
+                `Cannot find build directory in "${
+                  existsSync(csrBuildDir) ? ssrBuildDir : csrBuildDir
+                }".`
+              );
+          }
+
+          setTimeout(() => {
+            timeoutExceeded = true;
+          }, buildTimeout);
+          return res.send('Still building. Please refresh back later.');
+        }
+
         template = readFileSync(templatePath, 'utf-8');
         script = getScript(ssrAppPath);
       }
