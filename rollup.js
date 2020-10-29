@@ -28,8 +28,9 @@ module.exports = function resolveConfig({
   resolvePlugins,
   resolveBrowserPlugins,
   resolveServerPlugins,
-  browserOptions,
-  serverOptions,
+  options = {},
+  browserOptions = {},
+  serverOptions = {},
 } = {}) {
   let browserPlugins = [
     svelte({
@@ -41,7 +42,8 @@ module.exports = function resolveConfig({
       ...browserSveltePluginOptions,
     }),
     nodeResolve({
-      preferBuiltins: true,
+      browser: true,
+      dedupe: (importee) => !!importee.match(/svelte(\/|$)/),
     }),
     commonjs({
       requireReturnsDefault: 'auto',
@@ -90,7 +92,8 @@ module.exports = function resolveConfig({
         },
         plugins: browserPlugins,
       },
-      browserOptions || {}
+      options,
+      browserOptions
     ),
     // Server bundle
     deepmerge(
@@ -105,7 +108,8 @@ module.exports = function resolveConfig({
         },
         plugins: serverPlugins,
       },
-      serverOptions || {}
+      options,
+      serverOptions
     ),
   ];
 };
