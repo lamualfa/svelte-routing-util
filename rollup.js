@@ -62,7 +62,7 @@ module.exports = function resolveConfig({
       ...serverSveltePluginOptions,
     }),
     nodeResolve({
-      preferBuiltins: true,
+      browser: true,
     }),
     commonjs({
       requireReturnsDefault: 'auto',
