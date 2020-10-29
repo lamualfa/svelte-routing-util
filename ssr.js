@@ -62,15 +62,13 @@ module.exports = function init({
       if (dev === undefined || dev || !template || !script) {
         if (!existsSync(ssrAppPath)) {
           if (timeoutExceeded) {
-            return res
-              .status(500)
-              .send(`Can't find SSR Script in "${ssrAppPath}".`);
+            return `Can't find SSR Script in "${ssrAppPath}".`;
           }
 
           setTimeout(() => {
             timeoutExceeded = true;
           }, buildTimeout);
-          return res.send('Still building. Please refresh back later.');
+          return 'Still building. Please refresh back later.';
         }
 
         template = readFileSync(templatePath, 'utf-8');
