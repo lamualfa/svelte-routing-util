@@ -1,6 +1,6 @@
 const static = require('serve-static');
 const { resolve, join, relative } = require('path');
-const { pathExistsSync, readFileSync, existsSync } = require('fs-extra');
+const { pathExistsSync, readFileSync } = require('fs-extra');
 const { resolve: resolveConfig } = require('./lib/config');
 
 const {
@@ -45,8 +45,6 @@ module.exports = function init({
 
   if (!pathExistsSync(templatePath))
     throw new Error(`Cannot find HTML file with path "${templatePath}".`);
-  else if (!pathExistsSync(resolve(__dirname, ssrAppPath)))
-    throw new Error(`Cannot find JS file with path "${ssrAppPath}".`);
 
   let timeoutExceeded;
   let template;
@@ -60,7 +58,7 @@ module.exports = function init({
     renderToString: function ({ url }) {
       // Reload static assets
       if (dev === undefined || dev || !template || !script) {
-        if (!existsSync(ssrAppPath)) {
+        if (!pathExistsSync(resolve(__dirname, ssrAppPath))) {
           if (timeoutExceeded) {
             return `Can't find SSR Script in "${ssrAppPath}".`;
           }
